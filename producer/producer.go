@@ -154,9 +154,9 @@ func MarshalMessageBatch(msgs ...*primitive.Message) []byte {
 }
 
 func (p *defaultProducer) prepareSendRequest(msg *primitive.Message, ttl time.Duration) (string, error) {
-	correlationId := uuid.NewV4().String()
+	correlationId, _ := uuid.NewV4()
 	requestClientId := p.client.ClientID()
-	msg.WithProperty(primitive.PropertyCorrelationID, correlationId)
+	msg.WithProperty(primitive.PropertyCorrelationID, correlationId.String())
 	msg.WithProperty(primitive.PropertyMessageReplyToClient, requestClientId)
 	msg.WithProperty(primitive.PropertyMessageTTL, strconv.Itoa(int(ttl.Seconds())))
 
@@ -175,7 +175,7 @@ func (p *defaultProducer) prepareSendRequest(msg *primitive.Message, ttl time.Du
 		p.tryToFindTopicPublishInfo(msg.Topic)
 		p.client.SendHeartbeatToAllBrokerWithLock()
 	}
-	return correlationId, nil
+	return correlationId.String(), nil
 }
 
 // Request Send messages to consumer
